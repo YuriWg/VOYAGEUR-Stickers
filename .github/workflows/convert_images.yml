@@ -41,3 +41,4 @@ jobs:
       with:
         commit_message: "docs(webp): Automate PNG to WebP conversion"
         file_pattern: webp/*.webp
+        token: ${{ secrets.PERSONAL_TOKEN }}
