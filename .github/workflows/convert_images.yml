@@ -16,12 +16,15 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
 
+    - name: Install webp
+      run: brew install webp
+
     - name: Convert PNG to WebP and resize
       run: |
         mkdir -p webp
         for file in png/*.png; do
           filename=$(basename "$file" .png)
-          sips -s format webp -Z 1000 "$file" --out "webp/$filename.webp"
+          cwebp "$file" -o "webp/$filename.webp" -resize 1000 0
         done
 
     - name: Commit WebP files
