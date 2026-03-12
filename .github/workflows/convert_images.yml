@@ -1,6 +1,7 @@
 name: Convert PNG to WebP
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
