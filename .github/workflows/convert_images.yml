@@ -16,11 +16,20 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
 
-    - name: Install webp
-      run: brew install webp
+    - name: Debug and Install webp
+      run: |
+        set -x # Enable shell debugging
+        brew update # Update Homebrew first
+        brew install webp
+        if ! command -v cwebp &> /dev/null; then
+            echo "cwebp not found after installation!"
+            exit 1
+        fi
 
     - name: Convert PNG to WebP and resize
       run: |
+        set -x # Enable shell debugging
+        ulimit -n 4096 # Increase open file limit
         mkdir -p webp
         for file in png/*.png; do
           filename=$(basename "$file" .png)
