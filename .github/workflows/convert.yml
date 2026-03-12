@@ -1,0 +1,48 @@
+name: Image Conversion
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install webp and imagemagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webp imagemagick
+
+      - name: Convert images to WebP
+        run: |
+          # Create the webp directory if it doesn't exist
+          mkdir -p webp
+          # Find all png files in the png directory
+          for file in png/sticker*.png; do
+            # Get the base filename without the extension
+            filename=$(basename "$file" .png)
+            # Check if the webp version already exists
+            if [ ! -f "webp/$filename.webp" ]; then
+              echo "Converting $file to webp/$filename.webp"
+              # Convert the image to webp and resize it to a max width of 1000px
+              convert "$file" -resize "1000>" "webp/$filename.webp"
+            fi
+          done
+
+      - name: Commit files
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add webp/
+          # Check if there are any changes to commit
+          if ! git diff --staged --quiet; then
+            git commit -m "Add converted webp images"
+            git push
+          else
+            echo "No changes to commit"
+          fi
