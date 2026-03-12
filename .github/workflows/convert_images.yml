@@ -1,0 +1,30 @@
+name: Convert PNG to WebP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'png/**.png'
+
+jobs:
+  convert:
+    runs-on: macos-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Convert PNG to WebP and resize
+      run: |
+        mkdir -p webp
+        for file in png/*.png; do
+          filename=$(basename "$file" .png)
+          sips -s format webp -Z 1000 "$file" --out "webp/$filename.webp"
+        done
+
+    - name: Commit WebP files
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs(webp): Automate PNG to WebP conversion"
+        file_pattern: webp/*.webp
